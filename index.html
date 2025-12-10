@@ -3189,6 +3189,38 @@
             }
         }
 
+        function createBubbles() {
+            const bubblesLayer = document.getElementById('bubblesLayer');
+            if (!bubblesLayer) return;
+
+            const initialCount = 25;
+            for (let i = 0; i < initialCount; i++) {
+                createBubble(bubblesLayer);
+            }
+
+            setInterval(() => {
+                createBubble(bubblesLayer);
+            }, 1000);
+        }
+
+        function createBubble(bubblesLayer) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+
+            const size = 10 + Math.random() * 40;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = Math.random() * 100 + '%';
+            bubble.style.animationDuration = 6 + Math.random() * 8 + 's';
+            bubble.style.animationDelay = Math.random() * 4 + 's';
+
+            bubblesLayer.appendChild(bubble);
+
+            bubble.addEventListener('animationend', () => {
+                bubble.remove();
+            });
+        }
+
         // ============================================
         // LOADING SEQUENCE
         // ============================================
@@ -3222,7 +3254,7 @@
                         loadingScreen.classList.add('hidden');
                         GameState.isStarted = true;
                         gameHUD.style.opacity = '1';
-                        
+
                         initThreeJS();
                         setupInputHandlers();
                         createMiniMapPings();
