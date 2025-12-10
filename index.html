@@ -493,6 +493,11 @@
             animation: ping-pulse 2s ease-in-out infinite;
         }
 
+        .mini-map-ping.nav-active {
+            background: #ffeb3b;
+            box-shadow: 0 0 15px #ffeb3b;
+        }
+
         @keyframes ping-pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.5); opacity: 0.5; }
@@ -1865,6 +1870,9 @@
         <button class="action-btn" id="scanBtn">
             <i class="fas fa-search"></i>
         </button>
+        <button class="action-btn" id="navBtn">
+            <i class="fas fa-location-arrow"></i>
+        </button>
         <button class="action-btn" id="menuBtn">
             <i class="fas fa-bars"></i>
         </button>
@@ -1888,6 +1896,8 @@
             nearbyTreasure: null,
             collectedTreasures: new Set()
         };
+
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
 
         // Treasure/Project Data
         const TREASURES = {
@@ -2019,6 +2029,15 @@
         const progressFill = document.getElementById('progressFill');
         const progressPercent = document.getElementById('progressPercent');
 
+        const miniMapPlayer = document.getElementById('miniMapPlayer');
+        const miniMap = document.querySelector('.mini-map');
+        const mobileControls = document.getElementById('mobileControls');
+        const actionButtons = document.getElementById('actionButtons');
+        const joystick = document.getElementById('joystick');
+        const scanBtn = document.getElementById('scanBtn');
+        const menuBtn = document.getElementById('menuBtn');
+        const navBtn = document.getElementById('navBtn');
+
         // ============================================
         // THREE.JS SETUP
         // ============================================
@@ -2027,6 +2046,12 @@
         let keys = { w: false, a: false, s: false, d: false, q: false, e: false, shift: false, space: false };
         let mouseX = 0, mouseY = 0;
         let targetRotationX = 0, targetRotationY = 0;
+
+        const miniMapPings = {};
+        let joystickActive = false;
+        let joystickVector = { x: 0, z: 0 };
+        let joystickStart = { x: 0, y: 0 };
+        let lastTouchX = 0, lastTouchY = 0;
 
         function initThreeJS() {
             // Scene
@@ -2654,6 +2679,11 @@
             if (keys.space) direction.y += 1;
             if (keys.q) direction.y -= 1;
 
+            if (isTouchDevice && joystickActive) {
+                direction.x += joystickVector.x;
+                direction.z += joystickVector.z;
+            }
+
             direction.normalize();
             direction.applyQuaternion(camera.quaternion);
             direction.multiplyScalar(moveSpeed * delta);
@@ -2759,19 +2789,38 @@
         }
 
         function updateMiniMap() {
-            const player = document.getElementById('miniMapPlayer');
-            const mapSize = 200;
+            const player = miniMapPlayer;
+            const mapElement = miniMap;
+            const mapSize = mapElement ? mapElement.offsetWidth : 200;
             const worldSize = 500;
 
             const mapX = ((camera.position.x + worldSize / 2) / worldSize) * mapSize;
             const mapY = ((camera.position.z + worldSize / 2) / worldSize) * mapSize;
 
-            player.style.left = Math.max(10, Math.min(mapSize - 10, mapX)) + 'px';
-            player.style.top = Math.max(10, Math.min(mapSize - 10, mapY)) + 'px';
+            if (player) {
+                player.style.left = Math.max(10, Math.min(mapSize - 10, mapX)) + 'px';
+                player.style.top = Math.max(10, Math.min(mapSize - 10, mapY)) + 'px';
 
-            // Update player direction indicator
-            const rotation = (-camera.rotation.y * 180 / Math.PI);
-            player.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+                // Update player direction indicator
+                const rotation = (-camera.rotation.y * 180 / Math.PI);
+                player.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+            }
+
+            Object.values(TREASURES).forEach(treasure => {
+                const ping = miniMapPings[treasure.id];
+                if (!ping) return;
+
+                if (GameState.collectedTreasures.has(treasure.id)) {
+                    ping.style.display = 'none';
+                    return;
+                }
+
+                ping.style.display = 'block';
+                const tx = ((treasure.position.x + worldSize / 2) / worldSize) * mapSize;
+                const tz = ((treasure.position.z + worldSize / 2) / worldSize) * mapSize;
+                ping.style.left = Math.max(10, Math.min(mapSize - 10, tx)) + 'px';
+                ping.style.top = Math.max(10, Math.min(mapSize - 10, tz)) + 'px';
+            });
         }
 
         // ============================================
@@ -2794,6 +2843,11 @@
                 if (key === 'escape') {
                     togglePause();
                 }
+
+                // Navigation helper
+                if (key === 'n') {
+                    highlightNearestTreasureOnMap();
+                }
             });
 
             document.addEventListener('keyup', (e) => {
@@ -2803,29 +2857,188 @@
                 if (key === ' ') keys.space = false;
             });
 
-            // Mouse movement for camera
-            document.addEventListener('mousemove', (e) => {
-                if (GameState.isPaused || !GameState.isStarted) return;
-                if (document.pointerLockElement !== document.body) return;
+            // Desktop mouse look
+            if (!isTouchDevice) {
+                document.addEventListener('mousemove', (e) => {
+                    if (GameState.isPaused || !GameState.isStarted) return;
+                    if (document.pointerLockElement !== document.body) return;
 
-                targetRotationY -= e.movementX * 0.002;
-                targetRotationX -= e.movementY * 0.002;
-                targetRotationX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, targetRotationX));
+                    targetRotationY -= e.movementX * 0.002;
+                    targetRotationX -= e.movementY * 0.002;
+                    targetRotationX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, targetRotationX));
+                });
+
+                // Click to lock pointer
+                gameCanvas.addEventListener('click', () => {
+                    if (GameState.isStarted && !GameState.isPaused && document.body.requestPointerLock) {
+                        document.body.requestPointerLock();
+                    }
+                });
+
+                // Pointer lock change
+                document.addEventListener('pointerlockchange', () => {
+                    if (document.pointerLockElement !== document.body && GameState.isStarted) {
+                        // Pointer unlocked - could pause game
+                    }
+                });
+            }
+
+            setupMobileControls();
+        }
+
+        function setupMobileControls() {
+            if (!mobileControls || !actionButtons) return;
+
+            if (!isTouchDevice) {
+                mobileControls.style.display = 'none';
+                actionButtons.style.display = 'none';
+                return;
+            }
+
+            mobileControls.style.display = 'flex';
+            actionButtons.style.display = 'flex';
+
+            if (joystick) {
+                joystick.addEventListener('touchstart', onJoystickStart, { passive: false });
+                joystick.addEventListener('touchmove', onJoystickMove, { passive: false });
+                joystick.addEventListener('touchend', onJoystickEnd);
+                joystick.addEventListener('touchcancel', onJoystickEnd);
+            }
+
+            if (scanBtn) {
+                scanBtn.addEventListener('click', () => {
+                    if (GameState.nearbyTreasure) {
+                        scanTreasure(GameState.nearbyTreasure);
+                    }
+                });
+            }
+
+            if (menuBtn) {
+                menuBtn.addEventListener('click', () => {
+                    togglePause();
+                });
+            }
+
+            if (navBtn) {
+                navBtn.addEventListener('click', () => {
+                    highlightNearestTreasureOnMap();
+                });
+            }
+
+            if (gameCanvas) {
+                gameCanvas.addEventListener('touchstart', onLookTouchStart, { passive: false });
+                gameCanvas.addEventListener('touchmove', onLookTouchMove, { passive: false });
+                gameCanvas.addEventListener('touchend', onLookTouchEnd);
+                gameCanvas.addEventListener('touchcancel', onLookTouchEnd);
+            }
+        }
+
+        function onJoystickStart(e) {
+            if (!isTouchDevice || e.touches.length === 0) return;
+            const touch = e.touches[0];
+            joystickActive = true;
+            joystickStart.x = touch.clientX;
+            joystickStart.y = touch.clientY;
+            joystickVector.x = 0;
+            joystickVector.z = 0;
+        }
+
+        function onJoystickMove(e) {
+            if (!isTouchDevice || !joystickActive || e.touches.length === 0) return;
+            const touch = e.touches[0];
+            const dx = touch.clientX - joystickStart.x;
+            const dy = touch.clientY - joystickStart.y;
+            const maxDist = 60;
+            let limitedDx = dx;
+            let limitedDy = dy;
+            const dist = Math.hypot(dx, dy);
+            if (dist > maxDist) {
+                const ratio = maxDist / dist;
+                limitedDx *= ratio;
+                limitedDy *= ratio;
+            }
+
+            if (joystick) {
+                joystick.style.transform = `translate(calc(-50% + ${limitedDx}px), calc(-50% + ${limitedDy}px))`;
+            }
+
+            joystickVector.x = limitedDx / maxDist;
+            joystickVector.z = -limitedDy / maxDist;
+        }
+
+        function onJoystickEnd() {
+            joystickActive = false;
+            joystickVector.x = 0;
+            joystickVector.z = 0;
+            if (joystick) {
+                joystick.style.transform = 'translate(-50%, -50%)';
+            }
+        }
+
+        function onLookTouchStart(e) {
+            if (!isTouchDevice || e.touches.length === 0) return;
+            const touch = e.touches[0];
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+        }
+
+        function onLookTouchMove(e) {
+            if (!isTouchDevice || e.touches.length === 0) return;
+            const touch = e.touches[0];
+            const dx = touch.clientX - lastTouchX;
+            const dy = touch.clientY - lastTouchY;
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+
+            targetRotationY -= dx * 0.003;
+            targetRotationX -= dy * 0.003;
+            targetRotationX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, targetRotationX));
+        }
+
+        function onLookTouchEnd() {
+            lastTouchX = 0;
+            lastTouchY = 0;
+        }
+
+        function createMiniMapPings() {
+            if (!miniMap) return;
+
+            Object.values(TREASURES).forEach(treasure => {
+                if (miniMapPings[treasure.id]) return;
+                const ping = document.createElement('div');
+                ping.className = 'mini-map-ping';
+                miniMap.appendChild(ping);
+                miniMapPings[treasure.id] = ping;
             });
+        }
 
-            // Click to lock pointer
-            gameCanvas.addEventListener('click', () => {
-                if (GameState.isStarted && !GameState.isPaused) {
-                    document.body.requestPointerLock();
+        function highlightNearestTreasureOnMap() {
+            let nearest = null;
+            let nearestDistance = Infinity;
+
+            Object.values(TREASURES).forEach(treasure => {
+                if (GameState.collectedTreasures.has(treasure.id)) return;
+                const dx = treasure.position.x - GameState.playerPosition.x;
+                const dy = treasure.position.y - GameState.playerPosition.y;
+                const dz = treasure.position.z - GameState.playerPosition.z;
+                const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                if (dist < nearestDistance) {
+                    nearestDistance = dist;
+                    nearest = treasure;
                 }
             });
 
-            // Pointer lock change
-            document.addEventListener('pointerlockchange', () => {
-                if (document.pointerLockElement !== document.body && GameState.isStarted) {
-                    // Pointer unlocked - could pause game
-                }
+            Object.values(miniMapPings).forEach(ping => {
+                ping.classList.remove('nav-active');
             });
+
+            if (nearest && miniMapPings[nearest.id]) {
+                const ping = miniMapPings[nearest.id];
+                ping.classList.add('nav-active');
+                setTimeout(() => {
+                    ping.classList.remove('nav-active');
+                }, 4000);
+            }
         }
 
         function scanTreasure(treasure) {
@@ -2893,7 +3106,9 @@
             discoveryPopup.classList.add('active');
 
             // Exit pointer lock for popup interaction
-            document.exitPointerLock();
+            if (!isTouchDevice && document.exitPointerLock) {
+                document.exitPointerLock();
+            }
         }
 
         function togglePause() {
@@ -2901,10 +3116,14 @@
 
             if (GameState.isPaused) {
                 pauseMenu.classList.add('active');
-                document.exitPointerLock();
+                if (!isTouchDevice && document.exitPointerLock) {
+                    document.exitPointerLock();
+                }
             } else {
                 pauseMenu.classList.remove('active');
-                document.body.requestPointerLock();
+                if (!isTouchDevice && document.body.requestPointerLock) {
+                    document.body.requestPointerLock();
+                }
             }
         }
 
@@ -2947,7 +3166,7 @@
             // Info panel close
             document.getElementById('infoPanelClose').addEventListener('click', () => {
                 infoPanel.classList.remove('active');
-                if (!GameState.isPaused) {
+                if (!GameState.isPaused && !isTouchDevice && document.body.requestPointerLock) {
                     document.body.requestPointerLock();
                 }
             });
@@ -2965,7 +3184,7 @@
 
         function closeDiscoveryPopup() {
             discoveryPopup.classList.remove('active');
-            if (!GameState.isPaused) {
+            if (!GameState.isPaused && !isTouchDevice && document.body.requestPointerLock) {
                 document.body.requestPointerLock();
             }
         }
@@ -3006,13 +3225,16 @@
                         
                         initThreeJS();
                         setupInputHandlers();
+                        createMiniMapPings();
                         createBubbles();
                         animate();
 
-                        // Initial pointer lock
-                        setTimeout(() => {
-                            document.body.requestPointerLock();
-                        }, 500);
+                        if (!isTouchDevice && document.body.requestPointerLock) {
+                            // Initial pointer lock (desktop only)
+                            setTimeout(() => {
+                                document.body.requestPointerLock();
+                            }, 500);
+                        }
 
                     }, 1000);
                 }
@@ -3029,52 +3251,12 @@
         }
 
         // ============================================
-        // BUBBLE EFFECTS
-        // ============================================
-        function createBubbles() {
-            const container = document.getElementById('bubblesLayer');
-            const bubbleCount = 30;
-
-            for (let i = 0; i < bubbleCount; i++) {
-                createBubble(container);
-            }
-
-            // Continuously create new bubbles
-            setInterval(() => {
-                if (container.children.length < 40) {
-                    createBubble(container);
-                }
-            }, 500);
-        }
-
-        function createBubble(container) {
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-
-            const size = Math.random() * 15 + 5;
-            const left = Math.random() * 100;
-            const duration = Math.random() * 10 + 8;
-            const delay = Math.random() * 5;
-
-            bubble.style.width = size + 'px';
-            bubble.style.height = size + 'px';
-            bubble.style.left = left + '%';
-            bubble.style.animationDuration = duration + 's';
-            bubble.style.animationDelay = delay + 's';
-
-            container.appendChild(bubble);
-
-            // Remove bubble after animation
-            setTimeout(() => {
-                bubble.remove();
-            }, (duration + delay) * 1000);
-        }
-
-        // ============================================
         // INITIALIZE
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             setupUIHandlers();
+            setupMobileControls();
+            createMiniMapPings();
             gameHUD.style.opacity = '0';
             loadingScreen.style.display = 'none';
         });
