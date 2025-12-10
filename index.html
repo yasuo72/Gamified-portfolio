@@ -431,10 +431,15 @@
 
         /* HUD Right - Mini Map */
         .hud-right {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
             display: flex;
             flex-direction: column;
             gap: 15px;
-            align-items: flex-end;
+            align-items: center;
+            z-index: 110;
         }
 
         .mini-map {
@@ -548,17 +553,26 @@
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 20px 30px;
+            padding: 15px 20px 20px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: flex-end;
-            background: linear-gradient(0deg, rgba(0, 20, 40, 0.8) 0%, transparent 100%);
+            gap: 20px;
+            background: linear-gradient(0deg, rgba(0, 20, 40, 0.9) 0%, transparent 100%);
+            z-index: 120;
+            pointer-events: auto;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         /* Inventory/Collectibles */
         .inventory {
             display: flex;
             gap: 10px;
+            z-index: 120;
+            pointer-events: auto;
+            flex-shrink: 0;
+            padding-right: 20px;
         }
 
         .inventory-slot {
@@ -575,6 +589,7 @@
             position: relative;
             pointer-events: auto;
             cursor: pointer;
+            z-index: 121;
         }
 
         .inventory-slot:hover {
@@ -610,6 +625,8 @@
             border-radius: 15px;
             border: 1px solid rgba(0, 245, 255, 0.3);
             backdrop-filter: blur(10px);
+            flex-shrink: 0;
+            margin-left: auto;
         }
 
         .control-key {
@@ -1034,15 +1051,18 @@
         /* Mission/Quest Panel */
         .mission-panel {
             position: fixed;
-            top: 100px;
-            left: 30px;
-            width: 300px;
+            top: 20px;
+            right: 20px;
+            width: 280px;
+            max-height: 400px;
+            z-index: 100;
             background: var(--ui-glass);
             border-radius: 15px;
             border: 1px solid rgba(0, 245, 255, 0.3);
             padding: 20px;
-            z-index: 150;
             backdrop-filter: blur(10px);
+            pointer-events: auto;
+            overflow-y: auto;
         }
 
         .mission-header {
@@ -1642,7 +1662,7 @@
                     <div class="objective-checkbox">
                         <i class="fas fa-check"></i>
                     </div>
-                    <span class="objective-text">Find Project Treasures (0/6)</span>
+                    <span class="objective-text">Find All Treasures (0/12)</span>
                 </div>
                 <div class="objective" id="obj3">
                     <div class="objective-checkbox">
@@ -1695,6 +1715,30 @@
                 <div class="inventory-slot locked" id="slot6" data-treasure="project6">
                     <span>🔒</span>
                     <span class="slot-number">6</span>
+                </div>
+                <div class="inventory-slot locked" id="slot7" data-treasure="skill1">
+                    <span>🔒</span>
+                    <span class="slot-number">7</span>
+                </div>
+                <div class="inventory-slot locked" id="slot8" data-treasure="skill2">
+                    <span>🔒</span>
+                    <span class="slot-number">8</span>
+                </div>
+                <div class="inventory-slot locked" id="slot9" data-treasure="skill3">
+                    <span>🔒</span>
+                    <span class="slot-number">9</span>
+                </div>
+                <div class="inventory-slot locked" id="slot10" data-treasure="skill4">
+                    <span>🔒</span>
+                    <span class="slot-number">10</span>
+                </div>
+                <div class="inventory-slot locked" id="slot11" data-treasure="skill5">
+                    <span>🔒</span>
+                    <span class="slot-number">11</span>
+                </div>
+                <div class="inventory-slot locked" id="slot12" data-treasure="skill6">
+                    <span>🔒</span>
+                    <span class="slot-number">12</span>
                 </div>
             </div>
 
@@ -1889,7 +1933,7 @@
             depth: 0,
             oxygen: 100,
             treasuresFound: 0,
-            totalTreasures: 6,
+            totalTreasures: 12,
             achievements: [],
             playerPosition: { x: 0, y: 0, z: 0 },
             playerRotation: 0,
@@ -1989,6 +2033,96 @@
                     'Interactive admin dashboard',
                     'AI-powered chatbot support',
                     'Real-time order tracking'
+                ]
+            },
+            skill1: {
+                id: 'skill1',
+                name: 'JavaScript Mastery',
+                icon: '⚡',
+                year: 'Expert',
+                description: 'Advanced JavaScript knowledge including ES6+, async/await, closures, and functional programming paradigms.',
+                tech: ['ES6+', 'Async/Await', 'DOM API', 'WebSockets'],
+                position: { x: 150, y: -80, z: -50 },
+                features: [
+                    'Event-driven architecture',
+                    'Promise & callback management',
+                    'Module systems (CommonJS, ES6)',
+                    'Performance optimization'
+                ]
+            },
+            skill2: {
+                id: 'skill2',
+                name: 'Python Expertise',
+                icon: '🐍',
+                year: 'Expert',
+                description: 'Deep expertise in Python for data science, machine learning, and backend development.',
+                tech: ['NumPy', 'Pandas', 'Scikit-learn', 'Django'],
+                position: { x: -150, y: -120, z: 80 },
+                features: [
+                    'Data manipulation & analysis',
+                    'Machine learning pipelines',
+                    'Web scraping & automation',
+                    'Statistical computing'
+                ]
+            },
+            skill3: {
+                id: 'skill3',
+                name: 'React Proficiency',
+                icon: '⚛️',
+                year: 'Expert',
+                description: 'Expert-level React development with hooks, state management, and performance optimization.',
+                tech: ['Hooks', 'Redux', 'Context API', 'Next.js'],
+                position: { x: 80, y: -170, z: -180 },
+                features: [
+                    'Component architecture',
+                    'State management patterns',
+                    'Server-side rendering',
+                    'Performance profiling'
+                ]
+            },
+            skill4: {
+                id: 'skill4',
+                name: 'Node.js Backend',
+                icon: '🟢',
+                year: 'Expert',
+                description: 'Full-stack Node.js development with Express, database design, and API architecture.',
+                tech: ['Express', 'Socket.IO', 'Microservices', 'REST APIs'],
+                position: { x: -120, y: -200, z: 150 },
+                features: [
+                    'RESTful API design',
+                    'Real-time communication',
+                    'Database optimization',
+                    'Authentication & security'
+                ]
+            },
+            skill5: {
+                id: 'skill5',
+                name: 'AI/ML Engineering',
+                icon: '🧠',
+                year: 'Expert',
+                description: 'Machine learning model development, training, and deployment with TensorFlow and PyTorch.',
+                tech: ['TensorFlow', 'PyTorch', 'Computer Vision', 'NLP'],
+                position: { x: 120, y: -280, z: -280 },
+                features: [
+                    'Neural network design',
+                    'Model optimization',
+                    'Data preprocessing',
+                    'Production deployment'
+                ]
+            },
+            skill6: {
+                id: 'skill6',
+                name: 'Mobile Development',
+                icon: '📱',
+                year: 'Expert',
+                description: 'Cross-platform mobile development with Flutter and React Native for iOS and Android.',
+                tech: ['Flutter', 'Dart', 'Firebase', 'Native APIs'],
+                position: { x: -100, y: -320, z: 200 },
+                features: [
+                    'UI/UX design patterns',
+                    'State management',
+                    'Native module integration',
+                    'App store deployment'
                 ]
             }
         };
@@ -2098,7 +2232,7 @@
         function createUnderwaterEnvironment() {
             // Create particles (plankton/debris)
             const particlesGeometry = new THREE.BufferGeometry();
-            const particleCount = 5000;
+            const particleCount = 1500;
             const positions = new Float32Array(particleCount * 3);
             const colors = new Float32Array(particleCount * 3);
 
@@ -2135,7 +2269,7 @@
             scene.add(particles);
 
             // Create rock formations
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 12; i++) {
                 const rockGeometry = new THREE.DodecahedronGeometry(Math.random() * 10 + 5, 1);
                 const rockMaterial = new THREE.MeshStandardMaterial({
                     color: 0x2a3a4a,
@@ -2144,7 +2278,7 @@
                 });
                 const rock = new THREE.Mesh(rockGeometry, rockMaterial);
                 rock.position.set(
-                    (Math.random() - 0.5) *                    (Math.random() - 0.5) * 400,
+                    (Math.random() - 0.5) * 400,
                     -50 - Math.random() * 300,
                     (Math.random() - 0.5) * 400
                 );
@@ -2162,10 +2296,10 @@
             }
 
             // Create kelp forest
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 20; i++) {
                 const kelpGroup = new THREE.Group();
                 const kelpHeight = 20 + Math.random() * 40;
-                const segments = 10;
+                const segments = 5;
 
                 for (let j = 0; j < segments; j++) {
                     const segmentGeometry = new THREE.CylinderGeometry(0.2, 0.3, kelpHeight / segments, 8);
@@ -2193,7 +2327,7 @@
 
             // Create coral formations
             const coralColors = [0xff6b9d, 0xff9f43, 0xee5a24, 0xbf00ff, 0x00f5ff];
-            for (let i = 0; i < 40; i++) {
+            for (let i = 0; i < 15; i++) {
                 const coralGeometry = new THREE.ConeGeometry(
                     1 + Math.random() * 3,
                     5 + Math.random() * 10,
@@ -2216,7 +2350,7 @@
             }
 
             // Create glowing orbs (bioluminescent)
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 30; i++) {
                 const orbGeometry = new THREE.SphereGeometry(0.3 + Math.random() * 0.5, 16, 16);
                 const orbColors = [0x00f5ff, 0x39ff14, 0xbf00ff, 0xff00a0, 0xffff00];
                 const orbColor = orbColors[Math.floor(Math.random() * orbColors.length)];
@@ -2236,12 +2370,6 @@
                 orb.userData.pulseSpeed = 1 + Math.random() * 2;
                 orb.userData.floatSpeed = 0.5 + Math.random();
                 orb.userData.floatAmplitude = 1 + Math.random() * 2;
-
-                // Add point light to some orbs
-                if (Math.random() > 0.7) {
-                    const orbLight = new THREE.PointLight(orbColor, 0.5, 10);
-                    orb.add(orbLight);
-                }
 
                 scene.add(orb);
             }
@@ -2453,9 +2581,9 @@
                     fishGroup.add(eye);
 
                     fishGroup.position.set(
-                        (Math.random() - 0.5) * 10,
-                        (Math.random() - 0.5) * 5,
-                        (Math.random() - 0.5) * 10
+                        (Math.random() - 0.5) * 100,
+                        (Math.random() - 0.5) * 50,
+                        (Math.random() - 0.5) * 100
                     );
 
                     fishGroup.userData = {
@@ -3007,6 +3135,7 @@
                 if (miniMapPings[treasure.id]) return;
                 const ping = document.createElement('div');
                 ping.className = 'mini-map-ping';
+                ping.style.display = 'block';
                 miniMap.appendChild(ping);
                 miniMapPings[treasure.id] = ping;
             });
@@ -3193,14 +3322,14 @@
             const bubblesLayer = document.getElementById('bubblesLayer');
             if (!bubblesLayer) return;
 
-            const initialCount = 25;
+            const initialCount = 8;
             for (let i = 0; i < initialCount; i++) {
                 createBubble(bubblesLayer);
             }
 
             setInterval(() => {
                 createBubble(bubblesLayer);
-            }, 1000);
+            }, 2500);
         }
 
         function createBubble(bubblesLayer) {
