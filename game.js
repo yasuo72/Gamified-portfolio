@@ -160,7 +160,7 @@
                 year: 'Expert',
                 description: 'Full-stack Node.js development with Express, database design, and API architecture.',
                 tech: ['Express', 'Socket.IO', 'Microservices', 'REST APIs'],
-                position: { x: -120, y: -200, z: 150 },
+                position: { x: -120, y: -200, z: 50 },
                 features: [
                     'RESTful API design',
                     'Real-time communication',
@@ -190,7 +190,7 @@
                 year: 'Expert',
                 description: 'Cross-platform mobile development with Flutter and React Native for iOS and Android.',
                 tech: ['Flutter', 'Dart', 'Firebase', 'Native APIs'],
-                position: { x: -100, y: -320, z: 200 },
+                position: { x: -100, y: -320, z: -50 },
                 features: [
                     'UI/UX design patterns',
                     'State management',
