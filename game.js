@@ -265,7 +265,7 @@
                 year: '2024',
                 description: 'NPTEL certification from IIT Kharagpur on Theory of Computation, covering automata, formal languages, and computational complexity.',
                 tech: ['Automata Theory', 'Formal Languages', 'Complexity Theory', 'Algorithms'],
-                position: { x: 110, y: -310, z: -280 },
+                position: { x: 110, y: -310, z: -180 },
                 features: [
                     'Finite automata',
                     'Context-free grammars',
@@ -280,7 +280,7 @@
                 year: '2025',
                 description: 'NPTEL certification from IIT Kharagpur on Internet of Things, covering IoT architecture, sensors, and embedded systems.',
                 tech: ['IoT Architecture', 'Sensors', 'Embedded Systems', 'Cloud Integration'],
-                position: { x: -110, y: -270, z: -350 },
+                position: { x: -110, y: -270, z: -220 },
                 features: [
                     'IoT device programming',
                     'Sensor integration',
