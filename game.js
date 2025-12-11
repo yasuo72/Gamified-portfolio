@@ -220,7 +220,7 @@
                 year: '2024',
                 description: 'Participated in Vadodara Hackathon 5.0 with a Flask-based AI/ML solution for real-world problem solving.',
                 tech: ['Flask', 'AI/ML', 'HTML/CSS/JS', 'Bootstrap'],
-                position: { x: -170, y: -140, z: -50 },
+                position: { x: -140, y: -140, z: -50 },
                 features: [
                     'Machine learning integration',
                     'Web development',
@@ -235,7 +235,7 @@
                 year: '2024',
                 description: 'Certification in SQL and Database Management from Infosys Springboard. Mastered relational database design and optimization.',
                 tech: ['SQL', 'Database Design', 'Query Optimization', 'Indexing'],
-                position: { x: 140, y: -250, z: -80 },
+                position: { x: 140, y: -60, z: -80 },
                 features: [
                     'Advanced SQL queries',
                     'Database normalization',
@@ -250,7 +250,7 @@
                 year: '2023-2024',
                 description: 'NPTEL certification from IIT Kharagpur covering computer networks, protocols, and internet architecture fundamentals.',
                 tech: ['TCP/IP', 'OSI Model', 'Network Security', 'Routing'],
-                position: { x: -140, y: -180, z: -200 },
+                position: { x: -140, y: -130, z: -100 },
                 features: [
                     'Network protocols',
                     'Internet architecture',
@@ -265,7 +265,7 @@
                 year: '2024',
                 description: 'NPTEL certification from IIT Kharagpur on Theory of Computation, covering automata, formal languages, and computational complexity.',
                 tech: ['Automata Theory', 'Formal Languages', 'Complexity Theory', 'Algorithms'],
-                position: { x: 110, y: -310, z: -180 },
+                position: { x: 110, y: -230, z: -140 },
                 features: [
                     'Finite automata',
                     'Context-free grammars',
@@ -280,7 +280,7 @@
                 year: '2025',
                 description: 'NPTEL certification from IIT Kharagpur on Internet of Things, covering IoT architecture, sensors, and embedded systems.',
                 tech: ['IoT Architecture', 'Sensors', 'Embedded Systems', 'Cloud Integration'],
-                position: { x: -110, y: -270, z: -220 },
+                position: { x: -110, y: -220, z: -120 },
                 features: [
                     'IoT device programming',
                     'Sensor integration',
