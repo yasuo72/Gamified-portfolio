@@ -220,7 +220,7 @@
                 year: '2024',
                 description: 'Participated in Vadodara Hackathon 5.0 with a Flask-based AI/ML solution for real-world problem solving.',
                 tech: ['Flask', 'AI/ML', 'HTML/CSS/JS', 'Bootstrap'],
-                position: { x: -170, y: -140, z: 120 },
+                position: { x: -170, y: -140, z: -50 },
                 features: [
                     'Machine learning integration',
                     'Web development',
@@ -265,7 +265,7 @@
                 year: '2024',
                 description: 'NPTEL certification from IIT Kharagpur on Theory of Computation, covering automata, formal languages, and computational complexity.',
                 tech: ['Automata Theory', 'Formal Languages', 'Complexity Theory', 'Algorithms'],
-                position: { x: 110, y: -310, z: 160 },
+                position: { x: 110, y: -310, z: -280 },
                 features: [
                     'Finite automata',
                     'Context-free grammars',
@@ -280,7 +280,7 @@
                 year: '2025',
                 description: 'NPTEL certification from IIT Kharagpur on Internet of Things, covering IoT architecture, sensors, and embedded systems.',
                 tech: ['IoT Architecture', 'Sensors', 'Embedded Systems', 'Cloud Integration'],
-                position: { x: -110, y: -270, z: 280 },
+                position: { x: -110, y: -270, z: -350 },
                 features: [
                     'IoT device programming',
                     'Sensor integration',
