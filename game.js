@@ -922,8 +922,8 @@
                     });
 
                     // Keep within bounds
-                    if (Math.abs(creature.position.x) > 200) creature.userData.moveDirection.x *= -1;
-                    if (Math.abs(creature.position.z) > 200) creature.userData.moveDirection.z *= -1;
+                    if (Math.abs(creature.position.x) > 350) creature.userData.moveDirection.x *= -1;
+                    if (Math.abs(creature.position.z) > 500) creature.userData.moveDirection.z *= -1;
                 }
 
                 if (creature.userData.type === 'fishSchool') {
@@ -938,8 +938,8 @@
                     });
 
                     // Change direction randomly or at bounds
-                    if (Math.abs(creature.position.x) > 200 || 
-                        Math.abs(creature.position.z) > 200 ||
+                    if (Math.abs(creature.position.x) > 350 || 
+                        Math.abs(creature.position.z) > 500 ||
                         Math.random() < 0.001) {
                         creature.userData.moveDirection = new THREE.Vector3(
                             (Math.random() - 0.5),
@@ -993,9 +993,9 @@
             camera.position.add(direction);
 
             // Clamp position
-            camera.position.y = Math.min(10, Math.max(-340, camera.position.y));
-            camera.position.x = Math.max(-250, Math.min(250, camera.position.x));
-            camera.position.z = Math.max(-450, Math.min(50, camera.position.z));
+            camera.position.y = Math.min(10, Math.max(-500, camera.position.y));
+            camera.position.x = Math.max(-400, Math.min(400, camera.position.x));
+            camera.position.z = Math.max(-600, Math.min(100, camera.position.z));
 
             // Update player position in state
             GameState.playerPosition = {
@@ -1094,7 +1094,7 @@
             const player = miniMapPlayer;
             const mapElement = miniMap;
             const mapSize = mapElement ? mapElement.offsetWidth : 200;
-            const worldSize = 500;
+            const worldSize = 800;
 
             const mapX = ((camera.position.x + worldSize / 2) / worldSize) * mapSize;
             const mapY = ((camera.position.z + worldSize / 2) / worldSize) * mapSize;
